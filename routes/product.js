@@ -19,7 +19,7 @@ products.get('/', (req, res) => {
     }
 
     if (keyword) { 
-        query += ` and keywords like '%${keyword}'`;
+        query += ` and keywords like '%${keyword}%'`;
     }
 
     pool.query(query, (error, products) => {
