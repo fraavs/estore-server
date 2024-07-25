@@ -32,7 +32,7 @@ users.post('/signup', (req, res) => {
                                 if (error) {
                                     res.status(401).send({
                                         error: error.code,
-                                        message: error.messagea
+                                        message: error.message,
                                     }
                                     );
                                 } else {
@@ -88,7 +88,12 @@ users.post('/login', (req, res) => {
 
                                 res.status(200).send({
                                     token: token,
-                                    expireInSeconds: 3600
+                                    expiresInSeconds: 3600,
+                                    user: {
+                                        firstName: result[0].firstName,
+                                        lastName: result[0].lastName,
+                                        username: result[0].username,
+                                    },
                                 });
                             } else {
                                 res.status(401).send({
