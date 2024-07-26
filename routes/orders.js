@@ -4,6 +4,7 @@ const orders = express.Router();
 const checkToken = require('../shared/checktoken');
 
 orders.post('/add', checkToken, (req, res) => {
+
     try {
         let userName = req.body.userName;
         let userEmail = req.body.userEmail;
@@ -13,6 +14,7 @@ orders.post('/add', checkToken, (req, res) => {
         let zipCode = req.body.zipCode;
         let total = req.body.total;
         let country = req.body.country;
+        let orderDetails = req.body.orderDetails;
 
         pool.query(`select id from users where email = '${userEmail}'`, (error, user) => {
             if (error) {
@@ -23,7 +25,7 @@ orders.post('/add', checkToken, (req, res) => {
             } else {
                 if (user.length > 0) {
                     let userId = user[0].id;
-                    const query = `insert into 'order' (userId, userName, street, city, state, zipCode, country, total) 
+                    const query = `insert into \`order\` (userId, userName, street, city, state, zipCode, country, total) 
                     values
                     ('${userId}','${userName}','${street}','${city}','${state}','${zipCode}','${country}','${total}');
                     select LAST_INSERT_ID()`;
@@ -39,7 +41,7 @@ orders.post('/add', checkToken, (req, res) => {
                             orderDetails.forEach(item => {
                                 const detailsQuery = `insert into orderdetails
                                 (orderId,productId,qty,price,amount) values
-                                (${orderId},${item.productId},${item.qty},${item.price},${item.amount})`;
+                                ('${orderId}','${item.productId}','${item.qty}','${item.price}','${item.amount}')`;
 
                                 pool.query(detailsQuery, (detailsError, detailsResult) => {
                                     if (detailsError) {
@@ -50,18 +52,16 @@ orders.post('/add', checkToken, (req, res) => {
                                     }
                                 });
                             });
+                            res.status(201).send({ message: 'success' });
                         }
                     });
-
-                    res.status(201).send({ message: 'success' });
                 } else {
                     res.status(401).send({ message: `User doesn't exist` });
                 }
             }
         });
-
-    } catch {
-        res.status(400).send({
+    } catch (error) {
+        res.status(500).send({
             error: error.code,
             message: error.message
         });
