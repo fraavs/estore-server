@@ -116,4 +116,26 @@ users.post('/login', (req, res) => {
     }
 });
 
+users.get('/userInfo', (req, res) => {
+    try {
+        // Query the database to get all registered users
+        pool.query('SELECT * FROM users', (error, results) => {
+            if (error) {
+                res.status(500).send({
+                    error: error.code,
+                    message: error.message,
+                });
+            } else {
+                // Send the list of registered users to the frontend
+                res.status(200).send({ users: results });
+            }
+        });
+    } catch (error) {
+        res.status(400).send({
+            error: error.code,
+            message: error.message,
+        });
+    }
+});
+
 module.exports = users;
