@@ -68,7 +68,44 @@ orders.post('/add', checkToken, (req, res) => {
     }
 });
 
-orders.get('/allorders', checkToken, (req, res) => {
+orders.get('/allorders', (req, res) => {
+    try {
+        pool.query(
+            `select orderId, DATE_FORMAT(orderDate, '%m%d%Y') as orderDate, userName, street, city, state, zipCode, country, total from \`order\``,
+            (error, orders) => {
+                if (error) {
+                    res.status(500).send({
+                        error: error.code,
+                        message: error.message
+                    });
+                } else {
+                    const allorders = [];
+                    orders.forEach((order) => {
+                        allorders.push({
+                            orderId: order.orderId,
+                            userName: order.userName,
+                            street: order.street,
+                            city: order.city,
+                            state: order.state,
+                            zipCode: order.zipCode,
+                            country: order.country,
+                            total: order.total,
+                            orderDate: order.orderDate,
+                        });
+                    });
+                    res.status(200).send(allorders);
+                }
+            }
+        );
+    } catch (error) {
+        res.status(400).send({
+            error: error.code,
+            message: error.message
+        });
+    }
+});
+
+orders.get('/oneorders', checkToken, (req, res) => {
     try {
         let userEmail = req.body.userEmail;
         pool.query(
